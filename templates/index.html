@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Prediction</title>
+    <!-- Bootstrap CDN for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            margin-bottom: 0
+
+        ;
+            font-family: Arial, sans-serif;
+            padding-bottom: 60px; /* Ensure there's enough space at the bottom for the footer */
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .form-control {
+            border-radius: 10px;
+        }
+        .btn-primary {
+            border-radius: 10px;
+            background-color: #007bff;
+            border: 1px solid #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border: 1px solid #0056b3;
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar a {
+            color: #fff !important;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+        }
+        .meter-container {
+            margin-top: 20px;
+            width: 100%;
+        }
+        .meter {
+            height: 20px;
+            border-radius: 10px;
+        }
+        .green {
+            background-color: green;
+            width: 100%;
+        }
+        .red {
+            background-color: red;
+            width: 100%;
+        }
+        .meter-info {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Model Prediction</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="text-center mb-4">Model Prediction</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- Prediction Form -->
+                <form method="POST" action="/predict">
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" class="form-control" id="age" name="age" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select class="form-control" id="gender" name="gender" required>
+                            <option value="0">Female</option>
+                            <option value="1">Male</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="height" class="form-label">Height (in cm)</label>
+                        <input type="number" class="form-control" id="height" name="height" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="weight" class="form-label">Weight (in kg)</label>
+                        <input type="number" class="form-control" id="weight" name="weight" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ap_hi" class="form-label">Systolic Blood Pressure (ap_hi)</label>
+                        <input type="number" class="form-control" id="ap_hi" name="ap_hi" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ap_lo" class="form-label">Diastolic Blood Pressure (ap_lo)</label>
+                        <input type="number" class="form-control" id="ap_lo" name="ap_lo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cholesterol" class="form-label">Cholesterol</label>
+                        <select class="form-control" id="cholesterol" name="cholesterol" required>
+                            <option value="1">Normal</option>
+                            <option value="2">Above Normal</option>
+                            <option value="3">Well Above Normal</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="gluc" class="form-label">Gluc</label>
+                        <select class="form-control" id="gluc" name="gluc" required>
+                            <option value="1">Normal</option>
+                            <option value="2">Above Normal</option>
+                            <option value="3">Well Above Normal</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="smoke" class="form-label">Smoker</label>
+                        <select class="form-control" id="smoke" name="smoke" required>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="alco" class="form-label">Alcohol Intake</label>
+                        <select class="form-control" id="alco" name="alco" required>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="active" class="form-label">Active</label>
+                        <select class="form-control" id="active" name="active" required>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit to Predict</button>
+                </form>
+
+                {% if prediction %}
+                <div class="result-box">
+                    <h4 class="text-center">Prediction Result:</h4>
+                    <p class="text-center">{{ prediction }}</p>
+                    <div class="meter-container">
+                        {% if prediction_value == 1 %}
+                        <div class="meter green" style="width: 100%"></div>
+                        {% else %}
+                        <div class="meter red" style="width: 100%"></div>
+                        {% endif %}
+                    </div>
+                    <div class="meter-info">
+                        {% if prediction_value == 1 %}
+                        <p>Healthy</p>
+                        {% else %}
+                        <p>At Risk</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if error %}
+                <div class="result-box">
+                    <h4 class="text-center" style="color:red;">Error:</h4>
+                    <p class="text-center">{{ error }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2024 REVA Developer's Community</p>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
